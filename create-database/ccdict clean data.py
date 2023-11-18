@@ -1,9 +1,9 @@
-import re
+import re,os
 from tqdm import tqdm
 from pypinyin.contrib.tone_convert import to_tone
 
-path=r'D:\training\stuff\stardict-editor-3.0.1\cedict_1_0_ts_utf-8_mdbg.txt'
-opath=r'D:\training\stuff\stardict-editor-3.0.1\2.csv'
+path=os.path.abspath('create-database\cedict_1_0_ts_utf-8_mdbg.txt')
+opath=os.path.abspath('create-database\cedict_1_0_ts_utf-8_mdbg.csv')
 
 with open(path, 'r',encoding='utf-8-sig') as file:
     with open(opath, 'w',encoding='utf-8-sig') as ofile:
@@ -24,3 +24,4 @@ with open(path, 'r',encoding='utf-8-sig') as file:
             line = re.sub(",,",",",line)
             line = re.sub("] ","],",line,1)
             ofile.write(line)
+
