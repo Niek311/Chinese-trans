@@ -23,5 +23,5 @@ with open(path, 'r',encoding='utf-8-sig') as file:
             line = re.sub("\s",",",line,2)
             line = re.sub(",,",",",line)
             line = re.sub("] ","],",line,1)
-            ofile.write(line)
+            ofile.write(line.lower())
 
