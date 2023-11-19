@@ -14,11 +14,12 @@ cur.execute('''CREATE TABLE C_dict (
    phon_the string,
    gian_the string,
    phien_am string,
-   nghia string
+   nghia string,
+   audiopath string
    );''')
 
 for row in tqdm(data):
-   cur.execute(f"INSERT INTO C_dict VALUES (?,?,?,?);",row)
+   cur.execute(f"INSERT INTO C_dict VALUES (?,?,?,?,?);",row)
 
 conn.commit()
 conn.close()
