@@ -11,6 +11,7 @@ from pypinyin.contrib.tone_convert import to_tone
 import pyautogui
 import datetime
 import cv2,pytesseract
+from playsound import playsound
 
 windll.shcore.SetProcessDpiAwareness(1)
 
@@ -149,10 +150,10 @@ class Edit():
         return line
 
     def save_to_db(_):
-        gianthe = meaning.get('1.0',meaning.search('[','1.0','end-1c'))
-        phonthe = meaning.get(meaning.search('[','1.0','end-1c'),meaning.search(']','1.0','end-1c'))[1:]
-        phienam = Edit.tonechinese(meaningkr.get('1.0','end-1c'))
-        nghia = meaningvn.get('1.0','end-1c')
+        gianthe = S_hantu.get('1.0',S_hantu.search('[','1.0','end-1c'))
+        phonthe = S_hantu.get(S_hantu.search('[','1.0','end-1c'),S_hantu.search(']','1.0','end-1c'))[1:]
+        phienam = Edit.tonechinese(S_phienam.get('1.0','end-1c'))
+        nghia = S_nghia.get('1.0','end-1c')
         data=(phonthe,gianthe,phienam,nghia)
         c.execute(f"INSERT INTO C_dict VALUES (?,?,?,?);",data)
         conn.commit()
@@ -245,9 +246,9 @@ class EntryBox(tk.Entry):
                 bgr1.destroy()
                 bgr2.destroy()
                 bgr3.destroy()
-                meaning.destroy()
-                meaningkr.destroy()
-                meaningvn.destroy()
+                S_hantu.destroy()
+                S_phienam.destroy()
+                S_nghia.destroy()
             except:
                 pass
           
@@ -275,9 +276,11 @@ class EntryBox(tk.Entry):
             try:
                 menu.pack_forget()
                 search_return.destroy()
-                meaning.destroy()
-                meaningkr.destroy()
-                meaningvn.destroy()
+                S_hantu.destroy()
+                S_phienam.destroy()
+                S_nghia.destroy()
+                speaker.destroy()
+                fspeaker.destroy()
             except:
                 pass
     
@@ -381,9 +384,12 @@ class UI():
         # print('open',tog)
     def UIclose():
         global bgr1,bgr2,bgr3,tog
-        bgr1.destroy()
-        bgr2.destroy()
-        bgr3.destroy()
+        try:
+            bgr1.destroy()
+            bgr2.destroy()
+            bgr3.destroy()
+        except:
+            pass
         tog=False
         # print('close',tog)
 
@@ -393,9 +399,9 @@ class Translate():
         lookup_value = entry_search.get()
         if switch==3:
             search_return.delete("1.0","end-1c")
-            meaning.delete("1.0","end-1c")
-            meaningkr.delete("1.0","end-1c")
-            meaningvn.delete("1.0","end-1c")
+            S_hantu.delete("1.0","end-1c")
+            S_phienam.delete("1.0","end-1c")
+            S_nghia.delete("1.0","end-1c")
             if lookup_value != "":
                 if Translate.vlookup(phien_am, lookup_value) != "Value not found": 
                     result = Translate.vlookup(phien_am, lookup_value)
@@ -403,31 +409,31 @@ class Translate():
                     result2 = Translate.vlookup2(phien_am, lookup_value)
                     
                     search_return.insert(tk.END,"Result for <" + lookup_value + ">")
-                    meaning.insert(tk.END,result)
-                    meaningkr.insert(tk.END,result1)
-                    meaningvn.insert(tk.END,result2)
+                    S_hantu.insert(tk.END,result)
+                    S_phienam.insert(tk.END,result1)
+                    S_nghia.insert(tk.END,result2)
             
                     canvas.create_window(18, 77, window=search_return, anchor='nw')
-                    canvas.create_window(18, 90, window=meaning, anchor='nw')
-                    canvas.create_window(18, 120, window=meaningkr, anchor='nw')
-                    canvas.create_window(18, 140, window=meaningvn, anchor='nw')
+                    canvas.create_window(18, 90, window=S_hantu, anchor='nw')
+                    canvas.create_window(18, 120, window=S_phienam, anchor='nw')
+                    canvas.create_window(18, 140, window=S_nghia, anchor='nw')
                 else:
                     search_return.insert(tk.END,"0 Result for <" + lookup_value + ">")
                     canvas.create_window(18, 80, window=search_return, anchor='nw')
             search_return.configure(state='disabled')
-            meaning.configure(state='disabled',background='white')
-            meaningkr.configure(state='disabled',background='white')
-            meaningvn.configure(state='disabled',background='white')
+            S_hantu.configure(state='disabled',background='white')
+            S_phienam.configure(state='disabled',background='white')
+            S_nghia.configure(state='disabled',background='white')
 
         elif switch==2:
             search_return.configure(state='normal')
-            meaning.configure(state='normal',background='#FFC0CB')
-            meaningkr.configure(state='normal',background='#FFC0CB')
-            meaningvn.configure(state='normal',background='#FFC0CB')
+            S_hantu.configure(state='normal',background='#FFC0CB')
+            S_phienam.configure(state='normal',background='#FFC0CB')
+            S_nghia.configure(state='normal',background='#FFC0CB')
             search_return.delete("1.0","end-1c")
-            meaning.delete("1.0","end-1c")
-            meaningkr.delete("1.0","end-1c")
-            meaningvn.delete("1.0","end-1c")
+            S_hantu.delete("1.0","end-1c")
+            S_phienam.delete("1.0","end-1c")
+            S_nghia.delete("1.0","end-1c")
             if lookup_value != "":
                 if Translate.vlookup(phien_am, lookup_value) != "Value not found": 
                     result = Translate.vlookup(phien_am, lookup_value)
@@ -435,53 +441,76 @@ class Translate():
                     result2 = Translate.vlookup2(phien_am, lookup_value)
                     
                     search_return.insert(tk.END,"Result for <" + lookup_value + ">")
-                    meaning.insert(tk.END,result)
-                    meaningkr.insert(tk.END,result1)
-                    meaningvn.insert(tk.END,result2)
+                    S_hantu.insert(tk.END,result)
+                    S_phienam.insert(tk.END,result1)
+                    S_nghia.insert(tk.END,result2)
             
                     canvas.create_window(18, 77, window=search_return, anchor='nw')
-                    canvas.create_window(18, 90, window=meaning, anchor='nw')
-                    canvas.create_window(18, 120, window=meaningkr, anchor='nw')
-                    canvas.create_window(18, 140, window=meaningvn, anchor='nw')
+                    canvas.create_window(18, 90, window=S_hantu, anchor='nw')
+                    canvas.create_window(18, 120, window=S_phienam, anchor='nw')
+                    canvas.create_window(18, 140, window=S_nghia, anchor='nw')
                 else:
                     search_return.delete("1.0","end-1c")
                     search_return.insert(tk.END,"Add data for <" + lookup_value + ">")
                     canvas.create_window(18, 77, window=search_return, anchor='nw')
 
-                    meaning.insert(tk.END,"Giản-thể [Phồn-thể]" )
-                    meaningkr.insert(tk.END,"[Nhập..]" )
-                    meaningvn.insert(tk.END,"Nhập.." )
+                    S_hantu.insert(tk.END,"Giản-thể [Phồn-thể]" )
+                    S_phienam.insert(tk.END,"[Nhập..]" )
+                    S_nghia.insert(tk.END,"Nhập.." )
 
-                    meaning.bind('<Key>', lambda event: Edit.prevent_delete(event, meaning))
-                    meaningkr.bind('<Key>', lambda event: Edit.prevent_delete(event, meaningkr))
+                    S_hantu.bind('<Key>', lambda event: Edit.prevent_delete(event, S_hantu))
+                    S_phienam.bind('<Key>', lambda event: Edit.prevent_delete(event, S_phienam))
 
-                    canvas.create_window(18, 90, window=meaning, anchor='nw')
-                    canvas.create_window(18, 120, window=meaningkr, anchor='nw')
-                    canvas.create_window(18, 140, window=meaningvn, anchor='nw')
+                    canvas.create_window(18, 90, window=S_hantu, anchor='nw')
+                    canvas.create_window(18, 120, window=S_phienam, anchor='nw')
+                    canvas.create_window(18, 140, window=S_nghia, anchor='nw')
         elif switch==1:
 
             search_return.configure(state='normal')
-            meaning.configure(state='normal',background='#FFC0CB')
-            meaningkr.configure(state='normal',background='#FFC0CB')
-            meaningvn.configure(state='normal',background='#FFC0CB')
+            S_hantu.configure(state='normal',background='#FFC0CB')
+            S_phienam.configure(state='normal',background='#FFC0CB')
+            S_nghia.configure(state='normal',background='#FFC0CB')
             search_return.delete("1.0","end-1c")
-            meaning.delete("1.0","end-1c")
-            meaningkr.delete("1.0","end-1c")
-            meaningvn.delete("1.0","end-1c")
+            S_hantu.delete("1.0","end-1c")
+            S_phienam.delete("1.0","end-1c")
+            S_nghia.delete("1.0","end-1c")
 
     def handle_enter(txt):
-        global bgr1,bgr2,bgr3,meaning,meaningkr,meaningvn,search_return
+        global bgr1,bgr2,bgr3,S_hantu,S_phienam,S_nghia,search_return
         if entry_search.get() != 'Search..':       
 
             search_return = tk.Text(canvas,font=('LG Smart Italic', 8), bg='white', fg='#b2b5b0',width=52,height=1,borderwidth=0,undo=True)
-            meaning = tk.Text(canvas,font=('LG Smart UI Bold',19), bg='white', fg='#2b2b2b',width=24,height=1,borderwidth=0,undo=True)
-            meaningkr = tk.Text(canvas,font=('LG Smart UI Bold',10), bg='white', fg='#2b2b2b',width=45,height=1,borderwidth=0,undo=True)
-            meaningvn = tk.Text(canvas,font=('LG Smart UI Bold',10), bg='white', fg='#2b2b2b',width=45,height=5,borderwidth=0,undo=True,wrap='word')
-            meaningvn.tag_configure("center", justify='center')
+            S_hantu = tk.Text(canvas,font=('LG Smart UI Bold',19), bg='white', fg='#2b2b2b',width=24,height=1,borderwidth=0,undo=True)
+            S_phienam = tk.Text(canvas,font=('LG Smart UI Bold',10), bg='white', fg='#2b2b2b',width=45,height=1,borderwidth=0,undo=True)
+            S_nghia = tk.Text(canvas,font=('LG Smart UI Bold',10), bg='white', fg='#2b2b2b',width=45,height=5,borderwidth=0,undo=True,wrap='word')
+            S_nghia.tag_configure("center", justify='center')
             
             Translate.search()
 
+    def playsound(filename):
+        pass
+
+    def showaudio(phien_am, lookup_value):
+        global speaker,fspeaker
+        try:
+            speaker.destroy()
+            fspeaker.destroy()
+        except:
+            pass
+        if phien_am is None:
+            x=c.execute(f"SELECT audiopath FROM C_dict WHERE gian_the = '{lookup_value}';").fetchone()
+        else:
+            x=c.execute(f"SELECT audiopath FROM C_dict WHERE gian_the = '{lookup_value}' AND phien_am ='{phien_am}' AND phon_the ='{phon_the}';").fetchone()
+        if x != None:
+            fspeaker=tk.Label(canvas,image=imgo,bg='white',cursor="hand2")
+            speaker=tk.Label(canvas,image=imgop,bg='white',cursor="hand2")
+            canvas.create_window(360,100,window=fspeaker,tags='fspeaker')
+            canvas.create_window(330,100,window=speaker,tags='speaker')
+            fspeaker.bind('<Button-1>',lambda event : playsound(os.path.join(os.path.abspath("."),"audio\\female",x[0])))
+            speaker.bind('<Button-1>',lambda event : playsound(os.path.join(os.path.abspath("."),"audio\\male",x[0])))
+            
     def vlookup(phien_am, lookup_value):
+        Translate.showaudio(phien_am, lookup_value)
         if phien_am is None:
             x=c.execute(f"SELECT phon_the FROM C_dict WHERE gian_the = '{lookup_value}';").fetchone()
         else:
@@ -559,6 +588,9 @@ if __name__ == "__main__":
     imgg= ImageTk.PhotoImage(Image.open(resource_path("kl6.png")).resize((15,15)))
     imgh= ImageTk.PhotoImage(Image.open(resource_path("kl5.png")).resize((15,15)))
     imgi= ImageTk.PhotoImage(Image.open(resource_path("kl1.png")).resize((15,13)))
+    imgo= ImageTk.PhotoImage(Image.open(resource_path("kl9.png")).resize((25,25))) #Female Speaker button
+    imgop= ImageTk.PhotoImage(Image.open(resource_path("kl10.png")).resize((25,25))) #Male Speaker button
+    
     # Variable
     tog,toggle = False,False
     opbox, ggop, editop, magop = None, None, None, None 
