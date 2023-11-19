@@ -9,6 +9,7 @@ with open(path, 'r',encoding='utf-8-sig') as file:
     with open(opath, 'w',encoding='utf-8-sig') as ofile:
         lines = file.readlines()
         for line in tqdm(lines):
+            line=line.lower()
             a=[i+1 for i,x in enumerate(line) if x=='[']
             b=[i for i,x in enumerate(line) if x==']']
             c=[line[a[i]:b[i]] for i in range(len(a))]
@@ -16,12 +17,19 @@ with open(path, 'r',encoding='utf-8-sig') as file:
             for i in range(len(c)):
                 b=list(c[i].split(" "))
                 e= ''.join(to_tone(i)+' ' if index != (len(b)-1) else to_tone(i) for index,i in enumerate(b)  )
+                e=f"[{e}]"
+                # print("e",e)
                 f= ''.join((i)+' ' if index != (len(b)-1) else i for index,i in enumerate(b)  )
+                f=f"\[{f}\]"
+                # print("f",f)
                 line=re.sub(f,e,line)
+                # print("line A",line)
+
 
             line = re.sub(",",";",line)
             line = re.sub("\s",",",line,2)
             line = re.sub(",,",",",line)
             line = re.sub("] ","],",line,1)
-            ofile.write(line.lower())
+
+            ofile.write(line)
 
