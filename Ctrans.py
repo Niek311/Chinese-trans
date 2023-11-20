@@ -34,21 +34,32 @@ def changemode(event):
         except:
             pass
         canvas.create_window(36,50,window=ggsrch,tags='ggsrch')
-        switch=1
         ggsrch.bind('<Button-1>',lambda event: OCR(root).create_screen_canvas())
+        switch=1
     elif event.widget.cget('image') == 'pyimage12':
-        switch=2
+        if switch==1:
+            try:
+                OCRresult.destroy()
+                UI.UIclose()
+            except:
+                pass
         try:
             canvas.delete("magsrch")
             canvas.delete("ggsrch")
-            Translate.search()
+            Translate.search()  
         except:
             pass
         canvas.create_window(36,48,window=editsrch,tags='editsrch')
         editsrch.bind('<Button-1>',Edit.save_to_db)
+        switch=2
         
     elif event.widget.cget('image') == 'pyimage13':
-        switch=3
+        if switch==1:
+            try:
+                OCRresult.destroy()
+                UI.UIclose()
+            except:
+                pass
         try:
             canvas.delete("editsrch")
             canvas.delete("ggsrch")
@@ -56,6 +67,7 @@ def changemode(event):
         except:
             pass
         canvas.create_window(36,50,window=magsrch,tags='magsrch')
+        switch=3
     opbox.destroy()
     ggop.destroy()
     editop.destroy()
@@ -243,9 +255,7 @@ class EntryBox(tk.Entry):
                 entry_search.config(fg='#808782')
                 entry_search.insert(0, "Search..")
                 search_return.destroy()
-                bgr1.destroy()
-                bgr2.destroy()
-                bgr3.destroy()
+                UI.UIclose()
                 S_hantu.destroy()
                 S_phienam.destroy()
                 S_nghia.destroy()
@@ -253,36 +263,39 @@ class EntryBox(tk.Entry):
                 pass
           
     def key_release(self,_):
-        # print("KeyR",_.keysym,tog)
-        Special=["Return","BackSpace", "Control_L","Control_R", "Shift_L","Shift_R", "Alt_L","Alt_R", "Win_L","Command", "Tab", "Caps_Lock", "Delete", "Escape", "Insert", "Home", "End", "Page Up", "Page Down", "Up", "Down", "Left", "Right", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"]
-        x=entry_search.get()
-        if menu !='' and _.keysym not in Special and _.keycode <= 229:
-            if len(x)>0 and tog==False :
-                UI.UIopen()
-                menu.pack(pady=85,fill=BOTH,expand=False,padx=20)
-                menu.config(height=5)     
-                menu.lift()
-        
-        if x != "" and _.keysym !='Return':
-            if switch==3 or switch==2:
-                data=[]
-                menu.update(sorted(data, key=lambda l: (len(str(l)), str(l))))
-                t=c.execute(f"SELECT gian_the,phien_am,phon_the FROM C_dict WHERE gian_the LIKE ('{x}%');").fetchall()
-                data.extend(t)
-                menu.update(sorted(data, key=lambda l: (len(str(l)), str(l))))
-                
-        elif x=="":
-            UI.UIclose()
-            try:
+        if switch != 1:
+            # print("KeyR",_.keysym,tog)
+            Special=["Return","BackSpace", "Control_L","Control_R", "Shift_L","Shift_R", "Alt_L","Alt_R", "Win_L","Command", "Tab", "Caps_Lock", "Delete", "Escape", "Insert", "Home", "End", "Page Up", "Page Down", "Up", "Down", "Left", "Right", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"]
+            x=entry_search.get()
+            if menu !='' and _.keysym not in Special and _.keycode <= 229:
+                if len(x)>0 and tog==False :
+                    UI.UIopen()
+                    menu.pack(pady=85,fill=BOTH,expand=False,padx=20)
+                    menu.config(height=5)     
+                    menu.lift()
+            
+            if x != "" and _.keysym !='Return':
+                if switch==3 or switch==2:
+                    data=[]
+                    menu.update(sorted(data, key=lambda l: (len(str(l)), str(l))))
+                    try:
+                        t=c.execute(f"SELECT gian_the,phien_am,phon_the FROM C_dict WHERE gian_the LIKE ('{x}%');").fetchall()
+                        data.extend(t)
+                        menu.update(sorted(data, key=lambda l: (len(str(l)), str(l))))
+                    except:
+                        pass          
+            elif x=="":
+                UI.UIclose()
                 menu.pack_forget()
-                search_return.destroy()
-                S_hantu.destroy()
-                S_phienam.destroy()
-                S_nghia.destroy()
-                speaker.destroy()
-                fspeaker.destroy()
-            except:
-                pass
+                try:
+                    search_return.destroy()
+                    S_hantu.destroy()
+                    S_phienam.destroy()
+                    S_nghia.destroy()
+                    speaker.destroy()
+                    fspeaker.destroy()
+                except:
+                    pass
     
     def down_key(self,_):
         if menu.winfo_exists() and not menu.curselection():
@@ -305,6 +318,13 @@ class OCR():
         self.picture_frame.pack(fill=BOTH, expand=True)
         # self.create_screen_canvas()
     
+    def OCR_result(data):
+        global OCRresult
+        UI.UIopen()
+        OCRresult = tk.Text(canvas,font=('LG Smart UI Bold',12), bg='white', fg='#2b2b2b',width=35,height=4,borderwidth=0,undo=True)
+        OCRresult.insert(tk.END,data)
+        canvas.create_window(18, 100, window=OCRresult, anchor='nw')
+
     def take_bounded_screenshot(self,x1, y1, x2, y2):
         image = pyautogui.screenshot(region=(x1, y1, x2, y2))
         file_name = datetime.datetime.now().strftime("%f") + ".png"
@@ -314,8 +334,7 @@ class OCR():
         blur = cv2.GaussianBlur(gray, (3,3), 0)
         data = pytesseract.image_to_string(blur, lang='eng+chi_sim+chi_tra', config='--psm 6')
         os.remove(file_name)
-        return print(data)
-
+        return OCR.OCR_result(data)
 
     def create_screen_canvas(self):
         self.master_screen.deiconify()
@@ -487,9 +506,6 @@ class Translate():
             
             Translate.search()
 
-    def playsound(filename):
-        pass
-
     def showaudio(phien_am, lookup_value):
         global speaker,fspeaker
         try:
@@ -501,7 +517,7 @@ class Translate():
             x=c.execute(f"SELECT audiopath FROM C_dict WHERE gian_the = '{lookup_value}';").fetchone()
         else:
             x=c.execute(f"SELECT audiopath FROM C_dict WHERE gian_the = '{lookup_value}' AND phien_am ='{phien_am}' AND phon_the ='{phon_the}';").fetchone()
-        if x != None:
+        if x[0] != "":
             fspeaker=tk.Label(canvas,image=imgo,bg='white',cursor="hand2")
             speaker=tk.Label(canvas,image=imgop,bg='white',cursor="hand2")
             canvas.create_window(360,100,window=fspeaker,tags='fspeaker')
@@ -510,7 +526,10 @@ class Translate():
             speaker.bind('<Button-1>',lambda event : playsound(os.path.join(os.path.abspath("."),"audio\\male",x[0])))
             
     def vlookup(phien_am, lookup_value):
-        Translate.showaudio(phien_am, lookup_value)
+        try:
+            Translate.showaudio(phien_am, lookup_value)
+        except:
+            pass
         if phien_am is None:
             x=c.execute(f"SELECT phon_the FROM C_dict WHERE gian_the = '{lookup_value}';").fetchone()
         else:
