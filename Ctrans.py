@@ -12,6 +12,7 @@ import pyautogui
 import datetime
 import cv2,pytesseract
 from playsound import playsound
+import threading
 
 windll.shcore.SetProcessDpiAwareness(1)
 
@@ -112,20 +113,22 @@ def on_click2(_):
 class Win(tk.Tk):
     def __init__(self):
         super().__init__()
-        super().overrideredirect(True)
+        threading.Thread(daemon=True,target=lambda: self.overrideredirect(True)).start()
+        # super().overrideredirect(True)
         self._offsetx = 0
         self._offsety = 0
-        super().iconphoto(True, ImageTk.PhotoImage(file=resource_path("Appicon.png")))
+        # super().iconphoto(True, ImageTk.PhotoImage(file=resource_path("Appicon.png")))
         super().bind("<Button-1>" ,self.clickwin)
         super().bind("<B1-Motion>", self.dragwin)
         super().bind("<Escape>", self.hide_window)
+        threading.Thread(daemon=True,target=lambda: self.hidden_icon()).start()
 
     def quit_window(self,icon, item):
         icon.stop()
         root.destroy()
 
-    def show_window(self,icon, item):
-        icon.stop()
+    def show_window(self,item):
+        # icon.stop()
         root.after(0,root.deiconify())
 
     def dragwin(self,event):
@@ -139,15 +142,14 @@ class Win(tk.Tk):
         self._offsetx = super().winfo_pointerx() - super().winfo_rootx()
         self._offsety = super().winfo_pointery() - super().winfo_rooty()
 
-    def close_app(self, event):
-        self.destroy()
-
-    def hide_window(self,event):
-        self.withdraw()
+    def hidden_icon(self):
         image=Image.open(resource_path("Appicon.png"))
         menu=(item('Show', self.show_window),item('Quit', self.quit_window),item('Leftclick',self.show_window,default=True,visible=False))
         icon=pystray.Icon("name", image, "Deerfy", menu)
         icon.run()
+
+    def hide_window(self,event):
+        self.withdraw()
 
 class Edit():
     def tonechinese(line):
