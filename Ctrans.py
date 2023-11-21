@@ -117,7 +117,7 @@ class Win(tk.Tk):
         # super().overrideredirect(True)
         self._offsetx = 0
         self._offsety = 0
-        # super().iconphoto(True, ImageTk.PhotoImage(file=resource_path("Appicon.png")))
+        super().iconphoto(True, ImageTk.PhotoImage(file=resource_path("Appicon.png")))
         super().bind("<Button-1>" ,self.clickwin)
         super().bind("<B1-Motion>", self.dragwin)
         super().bind("<Escape>", self.hide_window)
@@ -145,7 +145,7 @@ class Win(tk.Tk):
     def hidden_icon(self):
         image=Image.open(resource_path("Appicon.png"))
         menu=(item('Show', self.show_window),item('Quit', self.quit_window),item('Leftclick',self.show_window,default=True,visible=False))
-        icon=pystray.Icon("name", image, "Deerfy", menu)
+        icon=pystray.Icon("name", image, "C-trans", menu)
         icon.run()
 
     def hide_window(self,event):
